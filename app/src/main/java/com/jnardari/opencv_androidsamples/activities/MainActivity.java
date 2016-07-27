@@ -35,7 +35,11 @@ import java.util.List;
 public class MainActivity extends AppCompatActivity implements CvCameraViewListener2 {
     private static final String    TAG = "OCVSample::Activity";
 
-    private int                    overlaySize = 100;
+    /*
+     * The size of perspective transformed rectangle
+     * Increasing this value will slow down the performance significantly.
+     */
+    private int                    rectSize = 100;
 
     private Mat                    mRgba;
     private Mat                    mIntermediateMat;
@@ -117,7 +121,7 @@ public class MainActivity extends AppCompatActivity implements CvCameraViewListe
         mRgba = new Mat(height, width, CvType.CV_8UC4);
         mIntermediateMat = new Mat(height, width, CvType.CV_8UC4);
         mGray = new Mat(height, width, CvType.CV_8UC1);
-        mOverlay = new Mat(overlaySize, overlaySize, CvType.CV_8UC4);
+        mOverlay = new Mat(rectSize, rectSize, CvType.CV_8UC4);
     }
 
     public void onCameraViewStopped() {
@@ -257,9 +261,9 @@ public class MainActivity extends AppCompatActivity implements CvCameraViewListe
 
         List<Point> dst_pnt = new ArrayList<>();
         dst_pnt.add(new Point(0, 0));
-        dst_pnt.add(new Point(0, overlaySize));
-        dst_pnt.add(new Point(overlaySize, overlaySize));
-        dst_pnt.add(new Point(overlaySize, 0));
+        dst_pnt.add(new Point(0, rectSize));
+        dst_pnt.add(new Point(rectSize, rectSize));
+        dst_pnt.add(new Point(rectSize, 0));
         Mat endM = Converters.vector_Point2f_to_Mat(dst_pnt);
 
         startTimer("warpPerspective");
@@ -267,7 +271,7 @@ public class MainActivity extends AppCompatActivity implements CvCameraViewListe
         Imgproc.warpPerspective(mRgba, mOverlay, transformMatrix, mOverlay.size());
         endTimer();
 
-        double step = (double)overlaySize / 17;
+        double step = (double) rectSize / 17;
 
         StringBuilder sb = new StringBuilder();
         for(int row = 1; row <= 16; row++) {
