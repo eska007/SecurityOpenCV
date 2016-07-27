@@ -1,0 +1,21 @@
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent" >
+
+    <org.opencv.android.JavaCameraView
+        android:layout_width="fill_parent"
+        android:layout_height="fill_parent"
+        android:id="@+id/main_activity_surface_view" />
+    <ImageView
+        android:layout_width="300px"
+        android:layout_height="300px"
+        android:id="@+id/main_activity_image_view"
+        android:layout_alignParentRight="true" />
+    <TextView
+        android:layout_width="500px"
+        android:layout_height="500px"
+        android:id="@+id/main_activity_text_view"
+        android:textColor="#ffffff"
+        android:textSize="10sp" />
+</RelativeLayout>
