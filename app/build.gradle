@@ -6,7 +6,7 @@ model {
         buildToolsVersion = "23.0.3"
 
         defaultConfig.with {
-            applicationId = "com.jnardari.opencv_androidsamples"
+            applicationId = "com.kaist.security.message_recognition"
             minSdkVersion.apiLevel = 10
             targetSdkVersion.apiLevel = 22
             versionCode = 1

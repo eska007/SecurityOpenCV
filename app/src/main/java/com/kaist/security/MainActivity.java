@@ -27,8 +27,6 @@ import android.view.WindowManager;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-import com.jnardari.opencv_androidsamples.R;
-
 import java.util.ArrayList;
 import java.util.List;
 
