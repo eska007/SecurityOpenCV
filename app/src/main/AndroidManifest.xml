@@ -27,7 +27,7 @@
         android:largeHeap="true"
         android:theme="@style/AppTheme" >
         <activity
-            android:name=".activities.MainActivity"
+            android:name="com.kaist.security.MainActivity"
             android:configChanges="keyboardHidden|orientation"
             android:label="@string/title_activity_main"
             android:screenOrientation="landscape" >

@@ -1,4 +1,4 @@
-package com.jnardari.opencv_androidsamples.activities;
+package com.kaist.security;
 
 import android.graphics.Bitmap;
 import android.os.Handler;
