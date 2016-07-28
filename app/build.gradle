@@ -22,8 +22,6 @@ model {
     }
 
     /*
-     * native build settings
-     */
     android.ndk {
         moduleName = "ndklibrarysample"
         cppFlags += ["-std=c++11", "-fexceptions", "-frtti"]
@@ -80,7 +78,7 @@ model {
         create("fat") {
 
         }
-    }
+    }*/
 }
 
 dependencies {
