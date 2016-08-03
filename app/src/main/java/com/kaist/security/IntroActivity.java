@@ -4,8 +4,6 @@ package com.kaist.security;
  * Created by user on 2016-08-01.
  */
 
-
-import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -45,7 +43,6 @@ public class IntroActivity extends AppCompatActivity {
         String key = prefs.getString("regist_key", "");
 
         if (key == null || key.equals("")) {
-
             registPrivateKey(rootView);
         } else {
             startMainActivity();

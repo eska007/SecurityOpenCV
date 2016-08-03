@@ -17,5 +17,24 @@
         android:layout_height="500px"
         android:id="@+id/main_activity_text_view"
         android:textColor="#ffffff"
-        android:textSize="10sp" />
+        android:textSize="10sp"
+        android:layout_alignParentBottom="true"
+        android:layout_alignParentRight="true"
+        android:layout_alignParentEnd="true" />
+
+    <GridView
+        android:id="@+id/gridView1"
+        android:background="#ff0000"
+        android:layout_width="100dp"
+        android:layout_height="100dp"
+        android:columnWidth="9dp"
+        android:horizontalSpacing="2dp"
+        android:verticalSpacing="2dp"
+
+        android:stretchMode="columnWidth"
+        android:layout_alignBottom="@+id/main_activity_text_view"
+        android:layout_alignParentRight="true"
+        android:layout_alignParentEnd="true">
+    </GridView>
+
 </RelativeLayout>
