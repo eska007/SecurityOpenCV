@@ -16,7 +16,7 @@
     <string name="undistorted">Undistorted</string>
 
     <string name="hello_world">Hello world!</string>
-    <string name="title_activity_main">OpenCV Sample</string>
+    <string name="title_activity_main">Secret Message</string>
     <string name="title_activity_image_manipulations">Image Manipulations Sample</string>
     <string name="title_activity_camera_calibration">Camera Calibration Sample</string>
     <string name="title_activity_face_detection">Face Detection Sample</string>
