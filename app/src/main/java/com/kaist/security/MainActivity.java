@@ -26,6 +26,7 @@ import android.os.Bundle;
 import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
+import android.view.ViewManager;
 import android.view.WindowManager;
 import android.widget.GridLayout;
 import android.widget.ImageView;
@@ -322,19 +323,38 @@ public class MainActivity extends AppCompatActivity implements CvCameraViewListe
         GridLayout layout = (GridLayout) findViewById(R.id.GridView);
         layout.setVisibility(View.VISIBLE);
 
+        boolean existViewId;
         for (int i = 0; i < 256; i++) {
-            TextView tv = new TextView(this);
+            existViewId = false;
+            TextView tv = (TextView) findViewById(i);
+
+            if(tv == null) {
+                tv = new TextView(this);
+                existViewId = true;
+            }
+
             tv.setHeight(10);
             tv.setWidth(10);
-            //tv.setTextSize(1);
-            //tv.setText("_");
+            tv.setId(i);
+
             if (msgArr[i] == '0') {
                 tv.setBackgroundColor(Color.BLACK);
             } else if (msgArr[i] == '1') {
                 tv.setBackgroundColor(Color.WHITE);
             }
-            layout.addView(tv);
+
+            if (existViewId) {
+                layout.addView(tv);
+            }
+
         }
+    }
+
+    private void DeleteOverlay() {
+        Log.i(TAG, "DeleteOverlay()");
+
+        GridLayout layout = (GridLayout) findViewById(R.id.GridView);
+        ((ViewManager) layout.getParent()).removeView(layout);
     }
 
     /*private void setGridColor() {
