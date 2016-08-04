@@ -45,14 +45,14 @@ public class IntroActivity extends AppCompatActivity {
         if (key == null || key.equals("")) {
             registPrivateKey(rootView);
         } else {
-            startMainActivity();
+            startMainActivity(1000);
         }
         // ATTENTION: This was auto-generated to implement the App Indexing API.
         // See https://g.co/AppIndexing/AndroidStudio for more information.
         //client = new GoogleApiClient.Builder(this).addApi(AppIndex.API).build();
     }
 
-    private void startMainActivity() {
+    private void startMainActivity(int timer) {
         Handler handler = new Handler();
 
         handler.postDelayed(new Runnable() {
@@ -62,7 +62,7 @@ public class IntroActivity extends AppCompatActivity {
                 startActivity(intent);
                 finish();
             }
-        }, 2000);
+        }, timer);
     }
 
     private void registPrivateKey (View view) {
@@ -90,7 +90,7 @@ public class IntroActivity extends AppCompatActivity {
                 prefEditor.putString("regist_key", String.valueOf(key.getText()));
                 prefEditor.apply();
 
-                startMainActivity();
+                startMainActivity(0);
             }
         });
     }
