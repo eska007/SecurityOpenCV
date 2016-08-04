@@ -39,6 +39,7 @@
         <activity
             android:name=".MainActivity"
             android:configChanges="keyboardHidden|orientation"
+            android:screenOrientation="landscape"
             android:label="@string/title_activity_main">
             <intent-filter>
                 <action android:name="android.intent.action.VIEW"/>
