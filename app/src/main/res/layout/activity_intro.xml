@@ -20,10 +20,20 @@
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:layout_alignParentLeft="false"
-            android:layout_alignParentTop="false"
             android:layout_centerHorizontal="true"
             android:gravity="center"
-            android:orientation="vertical">
+            android:orientation="vertical"
+            android:layout_alignParentTop="true"
+            android:layout_alignParentBottom="true">
+
+            <TextView
+                android:id="@+id/intro_subtitle"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_horizontal"
+                android:text="@string/intro_subtitle_start"
+                android:textAppearance="?android:attr/textAppearanceLarge"
+                android:textColor="@color/highlighted_text_material_dark" />
 
             <EditText
                 android:id="@+id/edit_regist_key"
@@ -32,10 +42,10 @@
                 android:layout_centerHorizontal="true"
                 android:layout_centerVertical="true"
                 android:layout_gravity="center"
-                android:textColor="@color/bright_foreground_disabled_material_dark"
                 android:ems="10"
                 android:inputType="numberDecimal"
-                android:visibility="gone"/>
+                android:textColor="@color/bright_foreground_disabled_material_dark"
+                android:visibility="gone" />
 
             <Button
                 android:id="@+id/confirm_bt"
@@ -46,7 +56,9 @@
                 android:layout_centerHorizontal="true"
                 android:layout_gravity="center_horizontal"
                 android:text="키등록"
-                android:visibility="gone"/>
+                android:visibility="gone" />
+
+
         </LinearLayout>
 
 

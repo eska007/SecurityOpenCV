@@ -14,6 +14,7 @@ import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.TextView;
 
 /**
  * An example full-screen activity that shows and hides the system UI (i.e.
@@ -38,14 +39,15 @@ public class IntroActivity extends AppCompatActivity {
         setContentView(R.layout.activity_intro);
         View rootView = (View) findViewById(R.layout.activity_intro);
 
-
         SharedPreferences prefs = mContext.getSharedPreferences("SM", MODE_PRIVATE);
         String key = prefs.getString("regist_key", "");
 
         if (key == null || key.equals("")) {
+            TextView titleView = (TextView) findViewById(R.id.intro_subtitle);
+            titleView.setText(R.string.intro_subtitle_enter);
             registPrivateKey(rootView);
         } else {
-            startMainActivity(1000);
+            startMainActivity(300);
         }
         // ATTENTION: This was auto-generated to implement the App Indexing API.
         // See https://g.co/AppIndexing/AndroidStudio for more information.

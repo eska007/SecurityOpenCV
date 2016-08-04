@@ -1,9 +1,11 @@
 package com.kaist.security;
 
 import android.graphics.Bitmap;
+import android.graphics.Color;
 import android.os.Handler;
 import android.os.Message;
 import android.support.v7.app.AppCompatActivity;
+
 import org.opencv.android.BaseLoaderCallback;
 import org.opencv.android.CameraBridgeViewBase.CvCameraViewFrame;
 import org.opencv.android.LoaderCallbackInterface;
@@ -23,8 +25,9 @@ import org.opencv.utils.Converters;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.MotionEvent;
+import android.view.View;
 import android.view.WindowManager;
-import android.widget.GridView;
+import android.widget.GridLayout;
 import android.widget.ImageView;
 import android.widget.TextView;
 
@@ -32,45 +35,36 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class MainActivity extends AppCompatActivity implements CvCameraViewListener2 {
-    private static final String    TAG = "OCVSample::Activity";
+    private static final String TAG = "[SM]";
+    private static String mPrevMessage = "";
 
     /*
      * The size of perspective transformed rectangle
      * Increasing this value will slow down the performance significantly.
      */
-    private int                    rectSize = 100;
+    private int rectSize = 100;
 
-    private Mat                    mRgba;
-    private Mat                    mIntermediateMat;
-    private Mat                    mGray;
-    private Mat                    mOverlay;
-    private long                   mCheckpoint;
+    private Mat mRgba;
+    private Mat mIntermediateMat;
+    private Mat mGray;
+    private Mat mOverlay;
+    private long mCheckpoint;
 
-    private CameraBridgeViewBase   mOpenCvCameraView;
+    private CameraBridgeViewBase mOpenCvCameraView;
 
-    private BaseLoaderCallback  mLoaderCallback = new BaseLoaderCallback(this) {
+    private BaseLoaderCallback mLoaderCallback = new BaseLoaderCallback(this) {
         @Override
         public void onManagerConnected(int status) {
             switch (status) {
-                case LoaderCallbackInterface.SUCCESS:
-                {
+                case LoaderCallbackInterface.SUCCESS: {
                     mOpenCvCameraView.enableView();
-                } break;
-                default:
-                {
+                }
+                break;
+                default: {
                     super.onManagerConnected(status);
-                } break;
+                }
+                break;
             }
-        }
-    };
-
-    //in order to receive string data from separate thread
-    private Handler handler = new Handler() {
-        public void handleMessage(Message msg) {
-            Bundle bundle = msg.getData();
-            String message = bundle.getString("MESSAGE");
-            TextView textView = (TextView) findViewById(R.id.main_activity_text_view);
-            textView.setText(message);
         }
     };
 
@@ -78,7 +72,9 @@ public class MainActivity extends AppCompatActivity implements CvCameraViewListe
         Log.i(TAG, "Instantiated new " + this.getClass());
     }
 
-    /** Called when the activity is first created. */
+    /**
+     * Called when the activity is first created.
+     */
     @Override
     public void onCreate(Bundle savedInstanceState) {
         Log.i(TAG, "called onCreate");
@@ -90,6 +86,7 @@ public class MainActivity extends AppCompatActivity implements CvCameraViewListe
         mOpenCvCameraView = (CameraBridgeViewBase) findViewById(R.id.main_activity_surface_view);
         mOpenCvCameraView.setCvCameraViewListener(this);
 
+        //setGridColor();
     }
 
     @Override
@@ -145,7 +142,7 @@ public class MainActivity extends AppCompatActivity implements CvCameraViewListe
     long mEndTime;
     String mTimerName;
 
-    private void startTimer(String name){
+    private void startTimer(String name) {
         mTimerName = name;
         mStartTime = System.nanoTime();
     }
@@ -195,13 +192,13 @@ public class MainActivity extends AppCompatActivity implements CvCameraViewListe
             MatOfPoint contour = contours.get(idx);
             if (Imgproc.contourArea(contour) > 0.2 * maxArea) {
                 //scale up by 4
-                Core.multiply(contour, new Scalar(4,4), contour);
+                Core.multiply(contour, new Scalar(4, 4), contour);
                 validContoursList.add(contour);
             }
         }
 
         //the number of marker has to be 4
-        if(validContoursList.size() != 4) return mRgba;
+        if (validContoursList.size() != 4) return mRgba;
 
         Log.i(TAG, "The markers are detected.");
 
@@ -215,7 +212,7 @@ public class MainActivity extends AppCompatActivity implements CvCameraViewListe
 
             double sumX = 0.0, sumY = 0.0;
             //System.out.println("points.length: " + points.length);
-            for( int j = 0 ; j < points.length ; j++ ) {
+            for (int j = 0; j < points.length; j++) {
                 sumX += points[j].x;
                 sumY += points[j].y;
             }
@@ -226,26 +223,26 @@ public class MainActivity extends AppCompatActivity implements CvCameraViewListe
         endTimer();
 
         //sort the markers in the order of TOP_LEFT, BOTTOM_LEFT, BOTTOM_RIGHT, TOP_RIGHT
-        Point markersSorted[]  = new Point[4];
+        Point markersSorted[] = new Point[4];
         double sumMin = 99999.9, sumMax = -99999.9;
         double subMin = 99999.9, subMax = -99999.9;
-        for(int i = 0; i < markers.length; i++) {
+        for (int i = 0; i < markers.length; i++) {
             double sum = markers[i].x + markers[i].y;
             double sub = markers[i].x - markers[i].y;
 
-            if(sum > sumMax) {
+            if (sum > sumMax) {
                 markersSorted[2] = markers[i]; //BOTTOM_RIGHT
                 sumMax = sum;
             }
-            if(sum < sumMin) {
+            if (sum < sumMin) {
                 markersSorted[0] = markers[i]; //TOP_LEFT
                 sumMin = sum;
             }
-            if(sub > subMax) {
+            if (sub > subMax) {
                 markersSorted[3] = markers[i]; //TOP_RIGHT
                 subMax = sub;
             }
-            if(sub < subMin) {
+            if (sub < subMin) {
                 markersSorted[1] = markers[i]; //BOTTOM_LEFT
                 subMin = sub;
             }
@@ -272,12 +269,22 @@ public class MainActivity extends AppCompatActivity implements CvCameraViewListe
         endTimer();
 
         double step = (double) rectSize / 17;
+        byte[] msgArr = new byte[256];
 
         StringBuilder sb = new StringBuilder();
-        for(int row = 1; row <= 16; row++) {
-            for(int col = 1; col <= 16; col++) {
+        for (int row = 1, count = 0; row <= 16; row++) {
+            for (int col = 1; col <= 16; col++) {
                 double[] rgb = mOverlay.get((int) (row * step), (int) (col * step));
-                sb.append((rgb[0] > 127.0) ? "1" : "0"); //read red component only for test purpose
+                //1. bit-shift 처리 + 16 byte -> AES128 암호화
+                //2. setGridPoint
+                String ret = (rgb[0] > 127.0) ? "1" : "0";
+                if (ret.equals("1")) {
+                    msgArr[count] = '1';
+                } else {
+                    msgArr[count] = '0';
+                }
+                count++;
+                sb.append(ret); //read red component only for test purpose
             }
             sb.append("\n");
         }
@@ -285,10 +292,71 @@ public class MainActivity extends AppCompatActivity implements CvCameraViewListe
 
         Bundle bundle = new Bundle();
         bundle.putString("MESSAGE", sb.toString());
+        bundle.putByteArray("MESSAGE_RAW", msgArr);
         Message msg = handler.obtainMessage();
         msg.setData(bundle);
         handler.sendMessage(msg);
 
         return mRgba;
     }
+
+    //in order to receive string data from separate thread
+    private Handler handler = new Handler() {
+        public void handleMessage(Message msg) {
+            Bundle bundle = msg.getData();
+            String message = bundle.getString("MESSAGE");
+            byte[] rawMessage = bundle.getByteArray("MESSAGE_RAW");
+
+            TextView textView = (TextView) findViewById(R.id.main_activity_text_view);
+            textView.setText(message);
+
+            if (!message.equals(mPrevMessage)) {
+                mPrevMessage = message;
+                setGridColor(rawMessage);
+            }
+        }
+    };
+
+    private void setGridColor(byte[] msgArr) {
+        Log.i(TAG, "setGridColor()");
+        GridLayout layout = (GridLayout) findViewById(R.id.GridView);
+        layout.setVisibility(View.VISIBLE);
+
+        for (int i = 0; i < 256; i++) {
+            TextView tv = new TextView(this);
+            tv.setHeight(10);
+            tv.setWidth(10);
+            //tv.setTextSize(1);
+            //tv.setText("_");
+            if (msgArr[i] == '0') {
+                tv.setBackgroundColor(Color.BLACK);
+            } else if (msgArr[i] == '1') {
+                tv.setBackgroundColor(Color.WHITE);
+            }
+            layout.addView(tv);
+        }
+    }
+
+    /*private void setGridColor() {
+        Log.i(TAG, "setGridColor()");
+        GridLayout layout = (GridLayout) findViewById(R.id.GridView);
+        layout.setVisibility(View.VISIBLE);
+
+        for (int i = 0; i < 16; i++) {
+            for (int j = 0; j < 16; j++) {
+                TextView tv = new TextView(this);
+                if (j % 2 == 0) {
+                    tv.setBackgroundColor(Color.YELLOW);
+                    tv.setText("1");
+                    Log.i(TAG, "[" + i + "," + j + "]=" + "YELLOW");
+                } else {
+                    tv.setText("0");
+                    tv.setBackgroundColor(Color.MAGENTA);
+                    Log.i(TAG, "[" + i + "," + j + "]=" + "MAGENTA");
+                }
+
+                layout.addView(tv);
+            }
+        }
+    }*/
 }

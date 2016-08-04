@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">OpenCV Samples</string>
+    <string name="app_name"></string>
 
     <!-- Camera Calibration Strings -->
     <string name="action_calibrate">Calibrate</string>
@@ -15,9 +15,11 @@
     <string name="original">Original</string>
     <string name="undistorted">Undistorted</string>
 
-    <string name="hello_world">Hello world!</string>
     <string name="title_activity_main">Secret Message</string>
     <string name="title_activity_image_manipulations">Image Manipulations Sample</string>
     <string name="title_activity_camera_calibration">Camera Calibration Sample</string>
     <string name="title_activity_face_detection">Face Detection Sample</string>
+    <string name="intro_subtitle_start">Starting..</string>
+    <string name="intro_subtitle_enter">Please Enter..</string>
+
 </resources>
