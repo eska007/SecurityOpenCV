@@ -35,6 +35,9 @@ import android.widget.TextView;
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.crypto.Cipher;
+import javax.crypto.spec.SecretKeySpec;
+
 public class MainActivity extends AppCompatActivity implements CvCameraViewListener2 {
     private static final String TAG = "[SM]";
     private static String mPrevMessage = "";
@@ -270,8 +273,8 @@ public class MainActivity extends AppCompatActivity implements CvCameraViewListe
         endTimer();
 
         double step = (double) rectSize / 17;
-        byte[] msgArr = new byte[256];
-
+        byte pack = 0;
+        byte[] ciphertext = new byte[32];
         StringBuilder sb = new StringBuilder();
         for (int row = 1, count = 0; row <= 16; row++) {
             for (int col = 1; col <= 16; col++) {
@@ -279,21 +282,24 @@ public class MainActivity extends AppCompatActivity implements CvCameraViewListe
                 //1. bit-shift 처리 + 16 byte -> AES128 암호화
                 //2. setGridPoint
                 String ret = (rgb[0] > 127.0) ? "1" : "0";
-                if (ret.equals("1")) {
-                    msgArr[count] = '1';
-                } else {
-                    msgArr[count] = '0';
+                int bit = (rgb[0] > 127.0) ? 1 : 0;
+
+                pack |= bit << ((col - 1)  % 8);
+
+                if(col % 8 == 0) {
+                    ciphertext[count++] = pack;
+                    pack = 0;
                 }
-                count++;
+
                 sb.append(ret); //read red component only for test purpose
             }
             sb.append("\n");
         }
-        Log.i(TAG, sb.toString());
+        //Log.i(TAG, sb.toString());
 
         Bundle bundle = new Bundle();
-        bundle.putString("MESSAGE", sb.toString());
-        bundle.putByteArray("MESSAGE_RAW", msgArr);
+        bundle.putString("MESSAGE_IN_STRING", sb.toString());
+        bundle.putByteArray("MESSAGE_IN_BYTE", ciphertext);
         Message msg = handler.obtainMessage();
         msg.setData(bundle);
         handler.sendMessage(msg);
@@ -301,19 +307,36 @@ public class MainActivity extends AppCompatActivity implements CvCameraViewListe
         return mRgba;
     }
 
+    public byte[] decrypt(byte[] raw, byte[] encrypted) throws Exception {
+        SecretKeySpec skeySpec = new SecretKeySpec(raw, "AES");
+        Cipher cipher = Cipher.getInstance("AES/ECB/NoPadding");
+        cipher.init(Cipher.DECRYPT_MODE, skeySpec);
+        return cipher.doFinal(encrypted);
+    }
+
     //in order to receive string data from separate thread
     private Handler handler = new Handler() {
         public void handleMessage(Message msg) {
             Bundle bundle = msg.getData();
-            String message = bundle.getString("MESSAGE");
-            byte[] rawMessage = bundle.getByteArray("MESSAGE_RAW");
+            String message = bundle.getString("MESSAGE_IN_STRING");
+            byte[] ciphertext = bundle.getByteArray("MESSAGE_IN_BYTE");
 
-            TextView textView = (TextView) findViewById(R.id.main_activity_text_view);
-            textView.setText(message);
+            //TextView textView = (TextView) findViewById(R.id.main_activity_text_view);
+            //textView.setText(message);
 
             if (!message.equals(mPrevMessage)) {
                 mPrevMessage = message;
-                setGridColor(rawMessage);
+                try {
+                    //zero key is used.
+                    byte[] secretKey = new byte[16];
+                    for(int i=0; i < secretKey.length; i++)
+                        secretKey[i] = 0;
+
+                    byte[] decrypted = decrypt(secretKey, ciphertext);
+                    setGridColor(decrypted);
+                }catch(Exception e){
+                    e.printStackTrace();
+                }
             }
         }
     };
@@ -337,9 +360,10 @@ public class MainActivity extends AppCompatActivity implements CvCameraViewListe
             tv.setWidth(10);
             tv.setId(i);
 
-            if (msgArr[i] == '0') {
+            int bit = 0x1 & (msgArr[i/8] >> (i%8));
+            if (bit == 0) {
                 tv.setBackgroundColor(Color.BLACK);
-            } else if (msgArr[i] == '1') {
+            } else if (bit == 1) {
                 tv.setBackgroundColor(Color.WHITE);
             }
 

@@ -37,14 +37,22 @@ public class EncryptHandler implements ActionListener{
                 }
             }
         }
+        /*
         System.out.print("[Msg ]");
         printByte(mMessageCode.plaintext);
 
         byte[] seed = mMessageCode.jTextfield.getText().getBytes();
         byte[] secretKey = getRawKey(seed);
+        */
 
+        byte[] secretKey = new byte[16];
+        for(int i=0; i < secretKey.length; i++)
+            secretKey[i] = 0;
+
+        /*
         System.out.print("[Seed]");
         printByte(seed);
+        */
 
         System.out.print("[key ]");
         printByte(secretKey);
