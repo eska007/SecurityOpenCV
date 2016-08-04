@@ -15,14 +15,16 @@ import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JLabel;
 import javax.swing.JFrame;
+import javax.swing.JTextField;
 
 public class MessageCode {
-    private Image image;
-    private ImageIcon imageIcon;
-    private JLabel jLabel;
-    private JFrame jFrame;
-    private JButton jClearButton;
-    private JButton jEncryptButton;
+    protected Image image;
+    protected ImageIcon imageIcon;
+    protected JLabel jLabel;
+    protected JFrame jFrame;
+    protected JButton jClearButton;
+    protected JButton jEncryptButton;
+    protected JTextField jTextfield;
 
     protected byte[] ciphertext;
     protected byte[] plaintext = new byte[Configuration.NUMBER_OF_ROWS * Configuration.NUMBER_OF_COLS / 8];
@@ -42,6 +44,7 @@ public class MessageCode {
         });
         jEncryptButton = new JButton("Encrypt");
         jEncryptButton.addActionListener(new EncryptHandler(this));
+        jTextfield = new JTextField();
 
         drawingPlane.setSize(Configuration.IMAGE_WIDTH, Configuration.IMAGE_HEIGHT);
 
@@ -52,11 +55,16 @@ public class MessageCode {
         container.add( jLabel, BorderLayout.EAST );
         container.add( drawingPlane, BorderLayout.WEST );
 
-        Panel center = new Panel();
-        center.setLayout(new GridLayout(2,1));
-        center.add( jClearButton );
-        center.add( jEncryptButton );
-        container.add( center, BorderLayout.CENTER );
+        Panel panel1 = new Panel();
+        Panel panel2 = new Panel();
+        panel1.setLayout(new GridLayout(1,3));
+        panel1.add( jClearButton );
+        panel1.add( panel2 );
+        panel2.setLayout(new GridLayout(2,1));
+        panel2.add( new JLabel("Input Key:") );
+        panel2.add( jTextfield );
+        panel1.add( jEncryptButton );
+        container.add( panel1, BorderLayout.SOUTH );
 
         jFrame.pack();
     }

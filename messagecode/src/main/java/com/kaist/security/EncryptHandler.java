@@ -2,8 +2,11 @@ package com.kaist.security;
 
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.security.SecureRandom;
+import java.security.cert.Extension;
 
 import javax.crypto.Cipher;
+import javax.crypto.KeyGenerator;
 import javax.crypto.SecretKey;
 import javax.crypto.spec.SecretKeySpec;
 
@@ -34,16 +37,40 @@ public class EncryptHandler implements ActionListener{
                 }
             }
         }
+        System.out.print("[Msg ]");
         printByte(mMessageCode.plaintext);
 
-        byte[] secretKey = new byte[16];
-        for(int i=0; i < secretKey.length; i++)
-            secretKey[i] = 0;
+        byte[] seed = mMessageCode.jTextfield.getText().getBytes();
+        byte[] secretKey = getRawKey(seed);
+
+        System.out.print("[Seed]");
+        printByte(seed);
+
+        System.out.print("[key ]");
+        printByte(secretKey);
 
         mMessageCode.ciphertext = encrypt(secretKey, mMessageCode.plaintext);
+        System.out.print("[Ciph]");
         printByte(mMessageCode.ciphertext);
 
         mMessageCode.paint();
+    }
+
+    private static byte[] getRawKey(byte[] seed) {
+        try {
+            KeyGenerator kgen = KeyGenerator.getInstance("AES");
+            SecureRandom sr;
+            sr = SecureRandom.getInstance("SHA1PRNG");
+
+            sr.setSeed(seed);
+            kgen.init(128, sr); // 192 and 256 bits may not be available
+            SecretKey skey = kgen.generateKey();
+            byte[] raw = skey.getEncoded();
+            return raw;
+        }catch(Exception e){
+            e.printStackTrace();
+        }
+        return null;
     }
 
     public static void printByte(byte[] bytedata) {
