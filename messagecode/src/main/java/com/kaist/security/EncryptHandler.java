@@ -3,7 +3,6 @@ package com.kaist.security;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.security.SecureRandom;
-import java.security.cert.Extension;
 
 import javax.crypto.Cipher;
 import javax.crypto.KeyGenerator;
@@ -14,39 +13,42 @@ import javax.crypto.spec.SecretKeySpec;
  * Created by rambar on 2016-08-04.
  */
 public class EncryptHandler implements ActionListener{
-
     private MessageCode mMessageCode;
+
+    private byte[] plaintext;
+    private byte[] ciphertext;
 
     public EncryptHandler(MessageCode messageCode) {
         mMessageCode = messageCode;
     }
 
     public void actionPerformed(ActionEvent e) {
+        plaintext = new byte[Configuration.NUMBER_OF_BLOCKS * Configuration.NUMBER_OF_BLOCKS / 8];
         byte pack = 0x00;
         int p = 0;
 
         //packing 8bit to 1byte
-        for(int y = 0; y < Configuration.NUMBER_OF_COLS; y++) {
-            for (int x = 0; x < Configuration.NUMBER_OF_ROWS; x++) {
-                int cell = (mMessageCode.drawingPlane.gridArray[y][x] == 1)? 1: 0;
+        for(int y = 0; y < Configuration.NUMBER_OF_BLOCKS; y++) {
+            for (int x = 0; x < Configuration.NUMBER_OF_BLOCKS; x++) {
+                int cell = (mMessageCode.getDrawingPlane().getGridArray()[y][x] == 1)? 1: 0;
                 pack |= cell << (x % 8);
 
                 if(x % 8 == 7) {
-                    mMessageCode.plaintext[p++] = pack;
+                    plaintext[p++] = pack;
                     pack = 0x00;
                 }
             }
         }
-        /*
-        System.out.print("[Msg ]");
-        printByte(mMessageCode.plaintext);
 
+        System.out.print("[Msg ]");
+        printByte(plaintext);
+        /*
         byte[] seed = mMessageCode.jTextfield.getText().getBytes();
         byte[] secretKey = getRawKey(seed);
         */
 
         byte[] secretKey = new byte[16];
-        for(int i=0; i < secretKey.length; i++)
+        for(int i = 0; i < secretKey.length; i++)
             secretKey[i] = 0;
 
         /*
@@ -57,9 +59,9 @@ public class EncryptHandler implements ActionListener{
         System.out.print("[key ]");
         printByte(secretKey);
 
-        mMessageCode.ciphertext = encrypt(secretKey, mMessageCode.plaintext);
+        ciphertext = encrypt(secretKey, plaintext);
         System.out.print("[Ciph]");
-        printByte(mMessageCode.ciphertext);
+        printByte(ciphertext);
 
         mMessageCode.paint();
     }
@@ -101,4 +103,6 @@ public class EncryptHandler implements ActionListener{
         }
         return null;
     }
+
+    protected byte[] getCipherText() { return ciphertext; }
 }

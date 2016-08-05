@@ -26,10 +26,8 @@ public class MessageCode {
     protected JButton jEncryptButton;
     protected JTextField jTextfield;
 
-    protected byte[] ciphertext;
-    protected byte[] plaintext = new byte[Configuration.NUMBER_OF_ROWS * Configuration.NUMBER_OF_COLS / 8];
-
-    protected DrawingPlane drawingPlane = new DrawingPlane();
+    private DrawingPlane drawingPlane;
+    private EncryptHandler encryptHandler;
 
     public MessageCode() {
         image = new BufferedImage( Configuration.IMAGE_WIDTH, Configuration.IMAGE_HEIGHT, BufferedImage.TYPE_INT_ARGB );
@@ -43,9 +41,11 @@ public class MessageCode {
             }
         });
         jEncryptButton = new JButton("Encrypt");
-        jEncryptButton.addActionListener(new EncryptHandler(this));
+        encryptHandler = new EncryptHandler(this);
+        jEncryptButton.addActionListener(encryptHandler);
         jTextfield = new JTextField();
 
+        drawingPlane = new DrawingPlane();
         drawingPlane.setSize(Configuration.IMAGE_WIDTH, Configuration.IMAGE_HEIGHT);
 
         jFrame = new JFrame( "Message Code" );
@@ -84,12 +84,12 @@ public class MessageCode {
         for(int i = 0; i < 4; i++)
             graphics.fillRect( xs[i], ys[i], Configuration.PADDING_SIZE, Configuration.PADDING_SIZE);
 
-        if(ciphertext == null) return;
+        if(encryptHandler.getCipherText() == null) return;
 
         // paint the black squares
-        for (int y = 0; y < Configuration.NUMBER_OF_ROWS; y++ ) {
-            for (int x = 0; x < Configuration.NUMBER_OF_COLS; x++) {
-                if(getBit(ciphertext, y * Configuration.NUMBER_OF_COLS + x) == 1) //plaintext or ciphertext
+        for (int y = 0; y < Configuration.NUMBER_OF_BLOCKS; y++ ) {
+            for (int x = 0; x < Configuration.NUMBER_OF_BLOCKS; x++) {
+                if(getBit(encryptHandler.getCipherText(), y * Configuration.NUMBER_OF_BLOCKS + x) == 1) //plaintext or ciphertext
                     graphics.setColor( Color.white );
                 else
                     graphics.setColor( Color.black );
@@ -118,4 +118,7 @@ public class MessageCode {
         messageCode.paint();
         messageCode.view();
     }
+
+    protected DrawingPlane getDrawingPlane() { return drawingPlane; }
+
 }
