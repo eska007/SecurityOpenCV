@@ -42,13 +42,14 @@
         </LinearLayout>
 
         <LinearLayout
+            android:id="@+id/linearLayout2"
             android:layout_width="match_parent"
-            android:layout_height="match_parent"
+            android:layout_height="150dp"
             android:layout_alignParentLeft="false"
             android:layout_alignParentStart="true"
             android:layout_below="@+id/linearLayout"
             android:background="#2a2d98"
-            android:gravity="center"
+            android:gravity="bottom|center"
             android:orientation="vertical">
 
             <TextView
@@ -72,6 +73,30 @@
                 android:textColor="@color/bright_foreground_disabled_material_dark"
                 android:visibility="gone" />
 
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_alignParentLeft="false"
+            android:layout_alignParentStart="true"
+            android:layout_below="@+id/linearLayout2"
+            android:background="#2a2d98"
+            android:gravity="center"
+            android:orientation="horizontal"
+            android:paddingTop="15dp">
+
+            <Button
+                android:id="@+id/start_main"
+                style="?android:attr/buttonStyleSmall"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignParentBottom="true"
+                android:layout_centerHorizontal="true"
+                android:layout_gravity="center_horizontal"
+                android:text="시작하기"
+                android:visibility="gone" />
+
             <Button
                 android:id="@+id/confirm_bt"
                 style="?android:attr/buttonStyleSmall"
@@ -82,6 +107,18 @@
                 android:layout_gravity="center_horizontal"
                 android:text="키등록"
                 android:visibility="gone" />
+
+            <Button
+                android:id="@+id/change_key"
+                style="?android:attr/buttonStyleSmall"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignParentBottom="true"
+                android:layout_centerHorizontal="true"
+                android:layout_gravity="center_horizontal"
+                android:text="키변경"
+                android:visibility="gone" />
+
         </LinearLayout>
 
         <TextView

@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name"></string>
+    <string name="app_name">Secret Message</string>
 
     <!-- Camera Calibration Strings -->
     <string name="action_calibrate">Calibrate</string>
@@ -21,5 +21,6 @@
     <string name="title_activity_face_detection">Face Detection Sample</string>
     <string name="intro_subtitle_start">Starting..</string>
     <string name="intro_subtitle_enter">Please Enter..</string>
+    <string name="intro_subtitle_select">Please Selecting..</string>
 
 </resources>

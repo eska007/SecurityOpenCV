@@ -38,20 +38,41 @@ public class IntroActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_intro);
         View rootView = (View) findViewById(R.layout.activity_intro);
+        TextView titleView = (TextView) findViewById(R.id.intro_subtitle);
+        Button startBt = (Button) findViewById(R.id.start_main);
+        Button confirmBt = (Button) findViewById(R.id.confirm_bt);
+        Button changeKeyBt = (Button) findViewById(R.id.change_key);
 
         SharedPreferences prefs = mContext.getSharedPreferences("SM", MODE_PRIVATE);
         String key = prefs.getString("regist_key", "");
 
         if (key == null || key.equals("")) {
-            TextView titleView = (TextView) findViewById(R.id.intro_subtitle);
             titleView.setText(R.string.intro_subtitle_enter);
-            registPrivateKey(rootView);
+            registPrivateKey(confirmBt);
         } else {
-            startMainActivity(300);
+            titleView.setText(R.string.intro_subtitle_select);
+            startBt.setVisibility(View.VISIBLE);
+            changeKeyBt.setVisibility(View.VISIBLE);
+            startBt.setOnClickListener(new Button.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    startMainActivity(0);
+                }
+            });
+            changeKey(changeKeyBt);
         }
         // ATTENTION: This was auto-generated to implement the App Indexing API.
         // See https://g.co/AppIndexing/AndroidStudio for more information.
         //client = new GoogleApiClient.Builder(this).addApi(AppIndex.API).build();
+    }
+
+    private void changeKey(final Button changeKeyBt) {
+        changeKeyBt.setOnClickListener(new Button.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                registPrivateKey(changeKeyBt);
+            }
+        });
     }
 
     private void startMainActivity(int timer) {
@@ -67,14 +88,13 @@ public class IntroActivity extends AppCompatActivity {
         }, timer);
     }
 
-    private void registPrivateKey (View view) {
+    private void registPrivateKey (Button bt) {
         Log.d(TAG, "registPrivateKey()");
 
-        Button confirmBt = (Button) findViewById(R.id.confirm_bt);
-        if (confirmBt == null) {
+        if (bt == null) {
             throw new AssertionError();
         }
-        confirmBt.setVisibility(View.VISIBLE);
+        bt.setVisibility(View.VISIBLE);
 
         final EditText key = (EditText) findViewById(R.id.edit_regist_key);
         if (key == null) {
@@ -82,7 +102,7 @@ public class IntroActivity extends AppCompatActivity {
         }
         key.setVisibility(View.VISIBLE);
 
-        confirmBt.setOnClickListener(new Button.OnClickListener() {
+        bt.setOnClickListener(new Button.OnClickListener() {
             @Override
             public void onClick(View view) {
                 // TODO : click event
