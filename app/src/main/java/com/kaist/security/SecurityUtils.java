@@ -19,6 +19,8 @@ import javax.crypto.spec.SecretKeySpec;
 public class SecurityUtils {
     private final static int JELLY_BEAN_4_2 = 17;
     private final static String HEX = "0123456789ABCDEF";
+    final static int MAX_KEY_LENGTH = 16;
+    final static int ENCRYT_BLOCK_SIZE = 16;
     static String TAG = "[SM]";
     private Context mContext;
 
@@ -38,12 +40,25 @@ public class SecurityUtils {
         mContext = context;
     }
 
-    private String getPrivateKey() {
+    public byte[] getPrivateKey() {
         SharedPreferences prefs = mContext.getSharedPreferences("SM", Context.MODE_PRIVATE);
         String key = prefs.getString("regist_key", "");
         Log.d(TAG, "Regist private key: " + key);
+        if (key.length() > MAX_KEY_LENGTH)
+            key = key.substring(MAX_KEY_LENGTH);
 
-        return key;
+        byte[] keyArr = key.getBytes();
+        byte[] secretKey = new byte[MAX_KEY_LENGTH];
+
+        for (int i = 0; i < secretKey.length; i++) {
+            secretKey[i] = '0';
+        }
+
+        for (int i = 0; i < keyArr.length; i++) {
+            secretKey[i] = keyArr[i];
+            Log.d(TAG, "key[" + i + "]=" + secretKey[i]);
+        }
+        return secretKey;
     }
 
     public static String encrypt(String key, String plainText, int type) throws Exception {
@@ -112,13 +127,15 @@ public class SecurityUtils {
         return encrypted;
     }
 
-    private static byte[] decrypt(byte[] raw, byte[] encrypted) throws Exception {
-        SecretKeySpec skeySpec = new SecretKeySpec(raw, "AES");
-        Cipher cipher = Cipher.getInstance("AES");
-        cipher.init(Cipher.DECRYPT_MODE, skeySpec);
-        byte[] decrypted = cipher.doFinal(encrypted);
+    public static byte[] decrypt(String key, byte[] encrypted) throws Exception {
+        return decrypt(key, encrypted);
+    }
 
-        return decrypted;
+    public static byte[] decrypt(byte[] raw, byte[] encrypted) throws Exception {
+        SecretKeySpec skeySpec = new SecretKeySpec(raw, "AES");
+        Cipher cipher = Cipher.getInstance("AES/ECB/NoPadding");
+        cipher.init(Cipher.DECRYPT_MODE, skeySpec);
+        return cipher.doFinal(encrypted);
     }
 
     public static String toHex(String txt) {

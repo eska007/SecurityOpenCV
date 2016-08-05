@@ -37,7 +37,7 @@ public class IntroActivity extends AppCompatActivity {
         mContext = this;
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_intro);
-        View rootView = (View) findViewById(R.layout.activity_intro);
+
         TextView titleView = (TextView) findViewById(R.id.intro_subtitle);
         Button startBt = (Button) findViewById(R.id.start_main);
         Button confirmBt = (Button) findViewById(R.id.confirm_bt);
@@ -59,14 +59,15 @@ public class IntroActivity extends AppCompatActivity {
                     startMainActivity(0);
                 }
             });
-            changeKey(changeKeyBt);
+            changeKey(titleView, changeKeyBt);
         }
         // ATTENTION: This was auto-generated to implement the App Indexing API.
         // See https://g.co/AppIndexing/AndroidStudio for more information.
         //client = new GoogleApiClient.Builder(this).addApi(AppIndex.API).build();
     }
 
-    private void changeKey(final Button changeKeyBt) {
+    private void changeKey(final TextView titleView, final Button changeKeyBt) {
+        titleView.setText(R.string.intro_subtitle_enter);
         changeKeyBt.setOnClickListener(new Button.OnClickListener() {
             @Override
             public void onClick(View view) {

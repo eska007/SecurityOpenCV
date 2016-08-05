@@ -53,7 +53,7 @@ public class MainActivity extends AppCompatActivity implements CvCameraViewListe
     private Mat mGray;
     private Mat mOverlay;
     private long mCheckpoint;
-
+    private SecurityUtils su;
     private CameraBridgeViewBase mOpenCvCameraView;
 
     private BaseLoaderCallback mLoaderCallback = new BaseLoaderCallback(this) {
@@ -89,7 +89,7 @@ public class MainActivity extends AppCompatActivity implements CvCameraViewListe
 
         mOpenCvCameraView = (CameraBridgeViewBase) findViewById(R.id.main_activity_surface_view);
         mOpenCvCameraView.setCvCameraViewListener(this);
-
+        su = new SecurityUtils(this);
         //setGridColor();
     }
 
@@ -307,13 +307,6 @@ public class MainActivity extends AppCompatActivity implements CvCameraViewListe
         return mRgba;
     }
 
-    public byte[] decrypt(byte[] raw, byte[] encrypted) throws Exception {
-        SecretKeySpec skeySpec = new SecretKeySpec(raw, "AES");
-        Cipher cipher = Cipher.getInstance("AES/ECB/NoPadding");
-        cipher.init(Cipher.DECRYPT_MODE, skeySpec);
-        return cipher.doFinal(encrypted);
-    }
-
     //in order to receive string data from separate thread
     private Handler handler = new Handler() {
         public void handleMessage(Message msg) {
@@ -329,10 +322,12 @@ public class MainActivity extends AppCompatActivity implements CvCameraViewListe
                 try {
                     //zero key is used.
                     byte[] secretKey = new byte[16];
-                    for(int i=0; i < secretKey.length; i++)
-                        secretKey[i] = 0;
 
-                    byte[] decrypted = decrypt(secretKey, ciphertext);
+                    secretKey = su.getPrivateKey();
+/*                    for(int i=0; i < secretKey.length; i++)
+                        secretKey[i] = 0;*/
+
+                    byte[] decrypted = su.decrypt(secretKey, ciphertext);
                     setGridColor(decrypted);
                 }catch(Exception e){
                     e.printStackTrace();
