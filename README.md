@@ -1,13 +1,9 @@
-# OpenCV-AndroidSamples
-OpenCv samples for Android from OpenCV SDK using Android Studio and Gradle System
+# Image processing + Cryptographic
+This work is the course output of 2016 KAIST SEP534 computing security.
 
-[Demo Available on Google Play](https://play.google.com/store/apps/details?id=com.jnardari.opencv_androidsamples)
-
-## Integrated Samples
-- Tutorial 1 Camera Preview
-- Tutorial 2 Mixed Processing (uses JNI)
-- Tutorial 3 Camera Control
-- Image Manipulations
-- Face Detection (uses JNI)
-- Color Blob Detection
-- Puzzle 15
+## Description
+- MessageCode   : An desktop based Java application which generates an encrypted image
+                  from user drawing.
+- SecretMessage : An Android based application which recognizes and decrypts an encrypted
+                  2D image in real-time.
+- Technologies  : Image processing with OpenCV, cryptographic with AES.
