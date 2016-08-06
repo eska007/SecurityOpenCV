@@ -14,15 +14,15 @@ public class DrawingPlane extends Canvas implements MouseListener, MouseMotionLi
     private int gridArray[][];
 
     public DrawingPlane() {
-        gridArray = new int[Configuration.NUMBER_OF_BLOCKS][Configuration.NUMBER_OF_BLOCKS];
+        gridArray = new int[Configuration.SQUARE_SIDE_LENGTH][Configuration.SQUARE_SIDE_LENGTH];
 
         addMouseListener(this);
         addMouseMotionListener(this);
     }
 
     public void clearGrid() {
-        for(int y = 0; y < Configuration.NUMBER_OF_BLOCKS; y++)
-            for(int x = 0; x < Configuration.NUMBER_OF_BLOCKS; x++)
+        for(int y = 0; y < Configuration.SQUARE_SIDE_LENGTH; y++)
+            for(int x = 0; x < Configuration.SQUARE_SIDE_LENGTH; x++)
                 gridArray[y][x] = 0;
         repaint();
     }
@@ -32,8 +32,8 @@ public class DrawingPlane extends Canvas implements MouseListener, MouseMotionLi
         int xIndex = (x - Configuration.PADDING_SIZE) / Configuration.SQUARE_SIZE;
         int yIndex = (y - Configuration.PADDING_SIZE) / Configuration.SQUARE_SIZE;
 
-        if(xIndex < 0 || xIndex >= Configuration.NUMBER_OF_BLOCKS) return false;
-        if(yIndex < 0 || yIndex >= Configuration.NUMBER_OF_BLOCKS) return false;
+        if(xIndex < 0 || xIndex >= Configuration.SQUARE_SIDE_LENGTH) return false;
+        if(yIndex < 0 || yIndex >= Configuration.SQUARE_SIDE_LENGTH) return false;
 
         if(gridArray[yIndex][xIndex] == 1) {
             needRepaint = false;
@@ -68,8 +68,8 @@ public class DrawingPlane extends Canvas implements MouseListener, MouseMotionLi
         for (int i = 0; i < cx.length; i++)
             graphics.drawLine(cx[i], cy[i], cx[(i + 1) % 4], cy[(i + 1) % 4]);
 
-        for (int y = 0; y < Configuration.NUMBER_OF_BLOCKS; y++) {
-            for (int x = 0; x < Configuration.NUMBER_OF_BLOCKS; x++) {
+        for (int y = 0; y < Configuration.SQUARE_SIDE_LENGTH; y++) {
+            for (int x = 0; x < Configuration.SQUARE_SIDE_LENGTH; x++) {
                 if (gridArray[y][x] == 1)
                     graphics.fillRect(x * Configuration.SQUARE_SIZE + Configuration.PADDING_SIZE, y * Configuration.SQUARE_SIZE + Configuration.PADDING_SIZE, Configuration.SQUARE_SIZE, Configuration.SQUARE_SIZE);
             }

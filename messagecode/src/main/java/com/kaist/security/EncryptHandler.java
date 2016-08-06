@@ -9,8 +9,6 @@ import javax.crypto.KeyGenerator;
 import javax.crypto.SecretKey;
 import javax.crypto.spec.SecretKeySpec;
 
-import static java.lang.System.arraycopy;
-
 /**
  * Created by rambar on 2016-08-04.
  */
@@ -25,13 +23,13 @@ public class EncryptHandler implements ActionListener {
     }
 
     public void actionPerformed(ActionEvent e) {
-        plaintext = new byte[Configuration.NUMBER_OF_BLOCKS * Configuration.NUMBER_OF_BLOCKS / 8];
+        plaintext = new byte[Configuration.SQUARE_SIDE_LENGTH * Configuration.SQUARE_SIDE_LENGTH / 8];
         byte pack = 0x00;
         int p = 0;
 
         //packing 8bit to 1byte
-        for (int y = 0; y < Configuration.NUMBER_OF_BLOCKS; y++) {
-            for (int x = 0; x < Configuration.NUMBER_OF_BLOCKS; x++) {
+        for (int y = 0; y < Configuration.SQUARE_SIDE_LENGTH; y++) {
+            for (int x = 0; x < Configuration.SQUARE_SIDE_LENGTH; x++) {
                 int cell = (mMessageCode.getDrawingPlane().getGridArray()[y][x] == 1) ? 1 : 0;
                 pack |= cell << (x % 8);
 

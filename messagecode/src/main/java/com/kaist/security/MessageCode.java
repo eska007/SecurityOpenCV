@@ -80,22 +80,39 @@ public class MessageCode {
         graphics.setColor( Color.decode("0xFF00FF") );
         int xs[] = {0, Configuration.IMAGE_WIDTH - Configuration.PADDING_SIZE, 0, Configuration.IMAGE_WIDTH - Configuration.PADDING_SIZE};
         int ys[] = {0, 0, Configuration.IMAGE_HEIGHT - Configuration.PADDING_SIZE, Configuration.IMAGE_HEIGHT - Configuration.PADDING_SIZE};
-
         for(int i = 0; i < 4; i++)
             graphics.fillRect( xs[i], ys[i], Configuration.PADDING_SIZE, Configuration.PADDING_SIZE);
 
         if(encryptHandler.getCipherText() == null) return;
 
-        // paint the black squares
-        for (int y = 0; y < Configuration.NUMBER_OF_BLOCKS; y++ ) {
-            for (int x = 0; x < Configuration.NUMBER_OF_BLOCKS; x++) {
-                if(getBit(encryptHandler.getCipherText(), y * Configuration.NUMBER_OF_BLOCKS + x) == 1) //plaintext or ciphertext
+        // paint the ciphertext squares
+        for (int y = 0; y < Configuration.SQUARE_SIDE_LENGTH; y++ ) {
+            for (int x = 0; x < Configuration.SQUARE_SIDE_LENGTH; x++) {
+                if(getBit(encryptHandler.getCipherText(), y * Configuration.SQUARE_SIDE_LENGTH + x) == 1) //plaintext or ciphertext
                     graphics.setColor( Color.white );
                 else
                     graphics.setColor( Color.black );
 
-                graphics.fillRect(x * Configuration.SQUARE_SIZE + Configuration.PADDING_SIZE, y * Configuration.SQUARE_SIZE + Configuration.PADDING_SIZE, Configuration.SQUARE_SIZE, Configuration.SQUARE_SIZE);
+                graphics.fillRect(x * Configuration.SQUARE_SIZE + Configuration.PADDING_SIZE,
+                        y * Configuration.SQUARE_SIZE + Configuration.PADDING_SIZE,
+                        Configuration.SQUARE_SIZE,
+                        Configuration.SQUARE_SIZE);
             }
+        }
+
+        // paint the parity squares
+        // white for odd
+        graphics.setColor( Color.white );
+        for (int y = 0; y < Configuration.SQUARE_SIDE_LENGTH; y++ ) {
+            int sumEachRow = 0;
+            for (int x = 0; x < Configuration.SQUARE_SIDE_LENGTH; x++)
+                sumEachRow += getBit(encryptHandler.getCipherText(), y * Configuration.SQUARE_SIDE_LENGTH + x);
+
+            if(sumEachRow % 2 == 1)
+                graphics.fillRect(Configuration.SQUARE_SIDE_LENGTH * Configuration.SQUARE_SIZE + Configuration.PADDING_SIZE,
+                                y * Configuration.SQUARE_SIZE + Configuration.PADDING_SIZE,
+                                Configuration.SQUARE_SIZE,
+                                Configuration.SQUARE_SIZE);
         }
 
         jLabel.repaint();

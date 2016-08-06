@@ -41,12 +41,14 @@ import javax.crypto.spec.SecretKeySpec;
 public class MainActivity extends AppCompatActivity implements CvCameraViewListener2 {
     private static final String TAG = "[SM]";
     private static String mPrevMessage = "";
+    private static final int SQUARE_SIDE_LENGTH = 32;
+    private static final int MESSAGE_LENGTH_IN_BYTE = SQUARE_SIDE_LENGTH * SQUARE_SIDE_LENGTH / 8;
 
     /*
      * The size of perspective transformed rectangle
      * Increasing this value will slow down the performance significantly.
      */
-    private int rectSize = 100;
+    private static final int rectSize = 160;
 
     private Mat mRgba;
     private Mat mIntermediateMat;
@@ -169,18 +171,18 @@ public class MainActivity extends AppCompatActivity implements CvCameraViewListe
         Imgproc.pyrDown(mIntermediateMat, mIntermediateMat);
 
         //convert image from RGB to HSV
-        startTimer("cvtColor");
+        //startTimer("cvtColor");
         Imgproc.cvtColor(mIntermediateMat, mIntermediateMat, Imgproc.COLOR_RGB2HSV);
-        endTimer();
+        //endTimer();
 
         //detect hot pink color (H: 140 - 160)
         Core.inRange(mIntermediateMat, new Scalar(140, 100, 100), new Scalar(160, 255, 255), mIntermediateMat);
 
         //find shape
         List<MatOfPoint> contours = new ArrayList<>();
-        startTimer("findContours");
+        //startTimer("findContours");
         Imgproc.findContours(mIntermediateMat, contours, new Mat(), Imgproc.RETR_LIST, Imgproc.CHAIN_APPROX_SIMPLE);
-        endTimer();
+        //endTimer();
 
         //pick the largest contour in the list of contours
         double maxArea = -1;
@@ -207,7 +209,7 @@ public class MainActivity extends AppCompatActivity implements CvCameraViewListe
         Log.i(TAG, "The markers are detected.");
 
         //get the coordinates of center of each marker
-        startTimer("coordinates");
+        //startTimer("coordinates");
         Point[] markers = new Point[4];
         for (int i = 0; i < validContoursList.size(); i++) {
             //Imgproc.drawContours(mRgba, validContoursList, idx, new Scalar(0, 0, 255), -1);
@@ -224,7 +226,7 @@ public class MainActivity extends AppCompatActivity implements CvCameraViewListe
             markers[i] = new Point(sumX / points.length, sumY / points.length);
             Imgproc.circle(mRgba, markers[i], 10, new Scalar(204, 255, 204), 6);
         }
-        endTimer();
+        //endTimer();
 
         //sort the markers in the order of TOP_LEFT, BOTTOM_LEFT, BOTTOM_RIGHT, TOP_RIGHT
         Point markersSorted[] = new Point[4];
@@ -272,21 +274,34 @@ public class MainActivity extends AppCompatActivity implements CvCameraViewListe
         Imgproc.warpPerspective(mRgba, mOverlay, transformMatrix, mOverlay.size());
         endTimer();
 
-        double step = (double) rectSize / 17;
+        double stepx = (double) rectSize / (SQUARE_SIDE_LENGTH + 2);
+        double stepy = (double) rectSize / (SQUARE_SIDE_LENGTH + 1);
         byte pack = 0;
-        byte[] ciphertext = new byte[32];
+        int sumEachRow = 0;
+        byte[] ciphertext = new byte[MESSAGE_LENGTH_IN_BYTE];
         StringBuilder sb = new StringBuilder();
-        for (int row = 1, count = 0; row <= 16; row++) {
-            for (int col = 1; col <= 16; col++) {
-                double[] rgb = mOverlay.get((int) (row * step), (int) (col * step));
+        for (int y = 1, count = 0; y <= SQUARE_SIDE_LENGTH; y++) {
+            for (int x = 1; x <= SQUARE_SIDE_LENGTH + 1; x++) {
+                double[] rgb = mOverlay.get((int) (y * stepy), (int) (x * stepx));
                 //1. bit-shift 처리 + 16 byte -> AES128 암호화
                 //2. setGridPoint
                 String ret = (rgb[0] > 127.0) ? "1" : "0";
                 int bit = (rgb[0] > 127.0) ? 1 : 0;
 
-                pack |= bit << ((col - 1)  % 8);
+                //parity check
+                if(x == SQUARE_SIDE_LENGTH + 1) {
+                    if((sumEachRow % 2) != bit) {
+                        Log.d(TAG, "Parity check fail! (" + sumEachRow + " at " + y + "line)");
+                        return mRgba;
+                    }
+                    sumEachRow = 0;
+                    continue;
+                }
 
-                if(col % 8 == 0) {
+                pack |= bit << ((x - 1)  % 8);
+                sumEachRow += bit;
+
+                if(x % 8 == 0) {
                     ciphertext[count++] = pack;
                     pack = 0;
                 }
@@ -321,12 +336,7 @@ public class MainActivity extends AppCompatActivity implements CvCameraViewListe
                 mPrevMessage = message;
                 try {
                     //zero key is used.
-                    byte[] secretKey = new byte[16];
-
-                    secretKey = su.getPrivateKey();
-/*                    for(int i=0; i < secretKey.length; i++)
-                        secretKey[i] = 0;*/
-
+                    byte[] secretKey = su.getPrivateKey();
                     byte[] decrypted = su.decrypt(secretKey, ciphertext);
                     setGridColor(decrypted);
                 }catch(Exception e){
@@ -341,8 +351,10 @@ public class MainActivity extends AppCompatActivity implements CvCameraViewListe
         GridLayout layout = (GridLayout) findViewById(R.id.GridView);
         layout.setVisibility(View.VISIBLE);
 
+        startTimer("setGridColor");
+
         boolean existViewId;
-        for (int i = 0; i < 256; i++) {
+        for (int i = 0; i < SQUARE_SIDE_LENGTH * SQUARE_SIDE_LENGTH; i++) {
             existViewId = false;
             TextView tv = (TextView) findViewById(i);
 
@@ -365,8 +377,9 @@ public class MainActivity extends AppCompatActivity implements CvCameraViewListe
             if (existViewId) {
                 layout.addView(tv);
             }
-
         }
+
+        endTimer();
     }
 
     private void DeleteOverlay() {
@@ -375,27 +388,4 @@ public class MainActivity extends AppCompatActivity implements CvCameraViewListe
         GridLayout layout = (GridLayout) findViewById(R.id.GridView);
         ((ViewManager) layout.getParent()).removeView(layout);
     }
-
-    /*private void setGridColor() {
-        Log.i(TAG, "setGridColor()");
-        GridLayout layout = (GridLayout) findViewById(R.id.GridView);
-        layout.setVisibility(View.VISIBLE);
-
-        for (int i = 0; i < 16; i++) {
-            for (int j = 0; j < 16; j++) {
-                TextView tv = new TextView(this);
-                if (j % 2 == 0) {
-                    tv.setBackgroundColor(Color.YELLOW);
-                    tv.setText("1");
-                    Log.i(TAG, "[" + i + "," + j + "]=" + "YELLOW");
-                } else {
-                    tv.setText("0");
-                    tv.setBackgroundColor(Color.MAGENTA);
-                    Log.i(TAG, "[" + i + "," + j + "]=" + "MAGENTA");
-                }
-
-                layout.addView(tv);
-            }
-        }
-    }*/
 }
