@@ -30,8 +30,7 @@
         android:rowCount="32"
         android:visibility="visible"
         android:layout_alignParentBottom="true"
-        android:layout_alignParentLeft="true"
-        android:layout_marginLeft="40dp">
+        android:layout_alignParentLeft="true">
     </GridLayout>
 
 </RelativeLayout>

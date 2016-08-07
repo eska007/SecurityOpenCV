@@ -45,7 +45,6 @@ public class IntroActivity extends AppCompatActivity {
 
         SharedPreferences prefs = mContext.getSharedPreferences("SM", MODE_PRIVATE);
         String key = prefs.getString("regist_key", "");
-
         if (key == null || key.equals("")) {
             titleView.setText(R.string.intro_subtitle_enter);
             registPrivateKey(confirmBt);
@@ -67,10 +66,11 @@ public class IntroActivity extends AppCompatActivity {
     }
 
     private void changeKey(final TextView titleView, final Button changeKeyBt) {
-        titleView.setText(R.string.intro_subtitle_enter);
+
         changeKeyBt.setOnClickListener(new Button.OnClickListener() {
             @Override
             public void onClick(View view) {
+                titleView.setText(R.string.intro_subtitle_enter);
                 registPrivateKey(changeKeyBt);
             }
         });
