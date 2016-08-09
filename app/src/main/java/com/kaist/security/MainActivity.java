@@ -24,6 +24,8 @@ import org.opencv.utils.Converters;
 
 import android.os.Bundle;
 import android.util.Log;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewManager;
@@ -35,14 +37,15 @@ import android.widget.TextView;
 import java.util.ArrayList;
 import java.util.List;
 
-import javax.crypto.Cipher;
-import javax.crypto.spec.SecretKeySpec;
-
 public class MainActivity extends AppCompatActivity implements CvCameraViewListener2 {
     private static final String TAG = "[SM]";
     private static String mPrevMessage = "";
     private static final int SQUARE_SIDE_LENGTH = 32;
     private static final int MESSAGE_LENGTH_IN_BYTE = SQUARE_SIDE_LENGTH * SQUARE_SIDE_LENGTH / 8;
+
+    private static final int       VIEW_MODE_RECOGNITION  = 0;
+    private static final int       VIEW_MODE_DEBUG        = 1;
+    private int                    mViewMode;
 
     /*
      * The size of perspective transformed rectangle
@@ -57,6 +60,9 @@ public class MainActivity extends AppCompatActivity implements CvCameraViewListe
     private long mCheckpoint;
     private SecurityUtils su;
     private CameraBridgeViewBase mOpenCvCameraView;
+
+    private MenuItem mItemRecognition;
+    private MenuItem mItemDebug;
 
     private BaseLoaderCallback mLoaderCallback = new BaseLoaderCallback(this) {
         @Override
@@ -93,6 +99,14 @@ public class MainActivity extends AppCompatActivity implements CvCameraViewListe
         mOpenCvCameraView.setCvCameraViewListener(this);
         su = new SecurityUtils(this);
         //setGridColor();
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        Log.i(TAG, "called onCreateOptionsMenu");
+        mItemRecognition = menu.add("Recognition");
+        mItemDebug = menu.add("Debug");
+        return true;
     }
 
     @Override
@@ -176,7 +190,14 @@ public class MainActivity extends AppCompatActivity implements CvCameraViewListe
         //endTimer();
 
         //detect hot pink color (H: 140 - 160)
-        Core.inRange(mIntermediateMat, new Scalar(140, 100, 100), new Scalar(160, 255, 255), mIntermediateMat);
+        Core.inRange(mIntermediateMat, new Scalar(140, 100, 100), new Scalar(170, 255, 255), mIntermediateMat);
+
+        if(mViewMode == VIEW_MODE_DEBUG) {
+            Imgproc.cvtColor(mIntermediateMat, mRgba, Imgproc.COLOR_GRAY2RGBA);
+            Imgproc.pyrUp(mRgba, mRgba);
+            Imgproc.pyrUp(mRgba, mRgba);
+            return mRgba;
+        }
 
         //find shape
         List<MatOfPoint> contours = new ArrayList<>();
@@ -196,11 +217,9 @@ public class MainActivity extends AppCompatActivity implements CvCameraViewListe
         List<MatOfPoint> validContoursList = new ArrayList<>();
         for (int idx = 0; idx < contours.size(); idx++) {
             MatOfPoint contour = contours.get(idx);
-            if (Imgproc.contourArea(contour) > 0.2 * maxArea) {
-                //scale up by 4
-                Core.multiply(contour, new Scalar(4, 4), contour);
-                validContoursList.add(contour);
-            }
+            //scale up by 4
+            Core.multiply(contour, new Scalar(4, 4), contour);
+            validContoursList.add(contour);
         }
 
         //the number of marker has to be 4
@@ -224,7 +243,7 @@ public class MainActivity extends AppCompatActivity implements CvCameraViewListe
             }
 
             markers[i] = new Point(sumX / points.length, sumY / points.length);
-            Imgproc.circle(mRgba, markers[i], 10, new Scalar(204, 255, 204), 6);
+            Imgproc.circle(mRgba, markers[i], 2, new Scalar(204, 255, 204), 2);
         }
         //endTimer();
 
@@ -387,5 +406,19 @@ public class MainActivity extends AppCompatActivity implements CvCameraViewListe
 
         GridLayout layout = (GridLayout) findViewById(R.id.GridView);
         ((ViewManager) layout.getParent()).removeView(layout);
+    }
+
+    public boolean onOptionsItemSelected(MenuItem item) {
+        Log.i(TAG, "called onOptionsItemSelected; selected item: " + item);
+
+        if (item == mItemRecognition) {
+            mViewMode = VIEW_MODE_RECOGNITION;
+        } else if (item == mItemDebug) {
+            mViewMode = VIEW_MODE_DEBUG;
+        } else if (item.getItemId() == android.R.id.home) {
+            finish();
+        }
+
+        return true;
     }
 }
