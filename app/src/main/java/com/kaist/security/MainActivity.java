@@ -2,6 +2,7 @@ package com.kaist.security;
 
 import android.graphics.Bitmap;
 import android.graphics.Color;
+import android.media.MediaPlayer;
 import android.os.Handler;
 import android.os.Message;
 import android.support.v7.app.AppCompatActivity;
@@ -51,7 +52,7 @@ public class MainActivity extends AppCompatActivity implements CvCameraViewListe
      * The size of perspective transformed rectangle
      * Increasing this value will slow down the performance significantly.
      */
-    private static final int rectSize = 160;
+    private static final int OVERLAY_SIZE = 160;
 
     private Mat mRgba;
     private Mat mIntermediateMat;
@@ -63,6 +64,7 @@ public class MainActivity extends AppCompatActivity implements CvCameraViewListe
 
     private MenuItem mItemRecognition;
     private MenuItem mItemDebug;
+    private MediaPlayer mMediaPlayer;
 
     private BaseLoaderCallback mLoaderCallback = new BaseLoaderCallback(this) {
         @Override
@@ -99,6 +101,8 @@ public class MainActivity extends AppCompatActivity implements CvCameraViewListe
         mOpenCvCameraView.setCvCameraViewListener(this);
         su = new SecurityUtils(this);
         //setGridColor();
+
+        mMediaPlayer = MediaPlayer.create(this, R.raw.beep);
     }
 
     @Override
@@ -138,7 +142,7 @@ public class MainActivity extends AppCompatActivity implements CvCameraViewListe
         mRgba = new Mat(height, width, CvType.CV_8UC4);
         mIntermediateMat = new Mat(height, width, CvType.CV_8UC4);
         mGray = new Mat(height, width, CvType.CV_8UC1);
-        mOverlay = new Mat(rectSize, rectSize, CvType.CV_8UC4);
+        mOverlay = new Mat(OVERLAY_SIZE, OVERLAY_SIZE, CvType.CV_8UC4);
     }
 
     public void onCameraViewStopped() {
@@ -283,9 +287,9 @@ public class MainActivity extends AppCompatActivity implements CvCameraViewListe
 
         List<Point> dst_pnt = new ArrayList<>();
         dst_pnt.add(new Point(0, 0));
-        dst_pnt.add(new Point(0, rectSize));
-        dst_pnt.add(new Point(rectSize, rectSize));
-        dst_pnt.add(new Point(rectSize, 0));
+        dst_pnt.add(new Point(0, OVERLAY_SIZE));
+        dst_pnt.add(new Point(OVERLAY_SIZE, OVERLAY_SIZE));
+        dst_pnt.add(new Point(OVERLAY_SIZE, 0));
         Mat endM = Converters.vector_Point2f_to_Mat(dst_pnt);
 
         startTimer("warpPerspective");
@@ -293,8 +297,8 @@ public class MainActivity extends AppCompatActivity implements CvCameraViewListe
         Imgproc.warpPerspective(mRgba, mOverlay, transformMatrix, mOverlay.size());
         endTimer();
 
-        double stepx = (double) rectSize / (SQUARE_SIDE_LENGTH + 2);
-        double stepy = (double) rectSize / (SQUARE_SIDE_LENGTH + 1);
+        double stepx = (double) OVERLAY_SIZE / (SQUARE_SIDE_LENGTH + 2);
+        double stepy = (double) OVERLAY_SIZE / (SQUARE_SIDE_LENGTH + 1);
         byte pack = 0;
         int sumEachRow = 0;
         byte[] ciphertext = new byte[MESSAGE_LENGTH_IN_BYTE];
@@ -357,6 +361,7 @@ public class MainActivity extends AppCompatActivity implements CvCameraViewListe
                     //zero key is used.
                     byte[] secretKey = su.getPrivateKey();
                     byte[] decrypted = su.decrypt(secretKey, ciphertext);
+                    mMediaPlayer.start();
                     setGridColor(decrypted);
                 }catch(Exception e){
                     e.printStackTrace();
